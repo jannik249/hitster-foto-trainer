@@ -1,0 +1,7 @@
+node_modules/
+dist/
+.DS_Store
+
+# Android-Projekt wird in der CI mit "cap add android" erzeugt.
+# Wer es lokal erzeugt (Android Studio), soll es nicht versehentlich einchecken:
+android/

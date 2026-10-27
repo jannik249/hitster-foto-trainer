@@ -1,0 +1,8 @@
+{
+  "appId": "app.hitster.fototrainer",
+  "appName": "Hitster Foto-Trainer",
+  "webDir": "www",
+  "android": {
+    "allowMixedContent": false
+  }
+}

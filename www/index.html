@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+<title>Hitster Foto-Trainer</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ===================== HEADER ===================== -->
+  <header class="topbar">
+    <button id="backBtn" class="back-btn hidden" type="button" aria-label="Zurück">←</button>
+    <h1 id="headerTitle">🎴 Hitster Foto-Trainer</h1>
+    <button id="themeToggle" class="icon-btn" type="button" title="Hell/Dunkel umschalten">🌙</button>
+  </header>
+
+  <!-- ===================== VIEW: KARTENSET-LISTE (HOME) ===================== -->
+  <main id="homeView" class="view">
+
+    <p class="intro-text">Fotografiere deine Hitster-Karten ab und lerne mit den echten Bildern – die App kennt keine Antworten, du bewertest dich selbst.</p>
+
+    <div id="cardSetGrid" class="card-set-grid"></div>
+
+    <button id="addSetBtn" class="primary-btn full-width" type="button">+ Neues Kartenset</button>
+
+    <section class="struggling-section">
+      <h2 class="section-heading">🔁 Schwierige Karten</h2>
+      <p class="section-sub" id="strugglingCount"></p>
+      <div class="detail-actions">
+        <button id="strugglingYearBtn" class="mode-tile" type="button">
+          <span class="mode-tile-icon">🗓️</span>
+          <span class="mode-tile-label">Jahr erraten</span>
+        </button>
+        <button id="strugglingArtistBtn" class="mode-tile" type="button">
+          <span class="mode-tile-icon">🎤</span>
+          <span class="mode-tile-label">Interpret erraten</span>
+        </button>
+      </div>
+      <p class="empty-hint hidden" id="strugglingEmptyHint">Aktuell keine schwierigen Karten – weiter so! 🎉</p>
+    </section>
+
+    <div class="backup-row">
+      <button id="backupBtn" class="link-btn" type="button">📤 Sichern</button>
+      <button id="restoreBtn" class="link-btn" type="button">📥 Wiederherstellen</button>
+      <input type="file" id="restoreFileInput" accept="application/json,.json" class="hidden">
+    </div>
+    <p class="backup-status" id="backupStatus"></p>
+
+  </main>
+
+  <!-- ===================== VIEW: KARTENSET-DETAIL ===================== -->
+  <main id="detailView" class="view hidden">
+
+    <div class="detail-actions">
+      <button id="playYearBtn" class="mode-tile" type="button">
+        <span class="mode-tile-icon">🗓️</span>
+        <span class="mode-tile-label">Jahr erraten</span>
+      </button>
+      <button id="playArtistBtn" class="mode-tile" type="button">
+        <span class="mode-tile-icon">🎤</span>
+        <span class="mode-tile-label">Interpret erraten</span>
+      </button>
+    </div>
+    <p class="empty-hint hidden" id="detailEmptyHint">Noch keine Fotos in diesem Kartenset – füge zuerst welche hinzu.</p>
+
+    <div class="upload-row">
+      <button id="addPhotosBtn" class="secondary-btn" type="button">+ Fotos hinzufügen</button>
+      <input type="file" id="photoFileInput" accept="image/*" multiple class="hidden">
+    </div>
+    <p class="upload-status" id="uploadStatus"></p>
+
+    <div id="cardThumbGrid" class="card-thumb-grid"></div>
+
+    <button id="deleteSetBtn" class="link-btn danger" type="button">🗑️ Kartenset komplett löschen</button>
+
+  </main>
+
+  <!-- ===================== VIEW: SPIELEN ===================== -->
+  <main id="playView" class="view hidden">
+
+    <div class="play-progress">
+      <span id="playCounter">0 / 0</span>
+    </div>
+
+    <div class="card-photo-stage">
+      <div class="card-photo-frame" id="cardPhotoFrame">
+        <img id="cardPhotoImg" src="" alt="Hitster-Karte">
+        <div class="cover-band" id="coverBand"></div>
+      </div>
+    </div>
+
+    <div class="play-controls">
+      <button id="revealBtn" class="primary-btn full-width" type="button">👁️ Aufdecken</button>
+      <div class="grade-row hidden" id="gradeRow">
+        <button id="wrongBtn" class="grade-btn grade-wrong" type="button" aria-label="Falsch geraten">✗</button>
+        <button id="rightBtn" class="grade-btn grade-right" type="button" aria-label="Richtig geraten">✓</button>
+      </div>
+    </div>
+
+    <div class="done-panel hidden" id="playDonePanel">
+      <h2>🎉 Runde fertig!</h2>
+      <p>Alle Karten in diesem Durchgang mindestens einmal richtig gehabt.</p>
+      <p class="first-try-stat" id="playFirstTryStat"></p>
+      <button id="playAgainBtn" class="primary-btn" type="button">Nochmal von vorne</button>
+    </div>
+
+  </main>
+
+</div>
+
+<!-- ===================== MODAL: Kartenset benennen ===================== -->
+<div class="modal-overlay hidden" id="nameModalOverlay">
+  <div class="modal-box">
+    <h2 id="nameModalTitle">Neues Kartenset</h2>
+    <input type="text" id="nameModalInput" class="modal-input" placeholder="z. B. Hitster Original" maxlength="60">
+    <div class="modal-actions">
+      <button id="nameModalCancel" class="secondary-btn" type="button">Abbrechen</button>
+      <button id="nameModalConfirm" class="primary-btn" type="button">Erstellen</button>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

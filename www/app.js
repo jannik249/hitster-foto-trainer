@@ -297,10 +297,16 @@
   let currentCardSetId = null;
   let currentMode = null; // 'year' | 'artist'
   let currentPlayContext = "set"; // 'set' | 'struggling'
-  let strugglingCardsCache = []; // set-uebergreifend: Karten mit lastAttempts >= 2
+  let strugglingCardsCache = { year: [], artist: [] }; // set-uebergreifend, je Modus getrennt: Karten mit >= 2 Versuchen
   let currentObjectUrls = []; // aktive object URLs, zum Aufraeumen
 
   const STRUGGLING_THRESHOLD = 2; // ab so vielen Versuchen gilt eine Karte als "schwierig"
+
+  // Die Versuche werden pro Modus gespeichert: "Jahr erraten" und "Interpret erraten"
+  // zaehlen unabhaengig voneinander.
+  function attemptsField(mode) {
+    return mode === "year" ? "lastAttemptsYear" : "lastAttemptsArtist";
+  }
 
   function revokeCurrentUrls() {
     currentObjectUrls.forEach((u) => URL.revokeObjectURL(u));
@@ -366,14 +372,22 @@
       if (!thumbBySet[c.cardSetId]) thumbBySet[c.cardSetId] = c;
     });
 
-    // Schwierige Karten: alle Kartensets zusammen, zuletzt >= 2 Versuche noetig
-    strugglingCardsCache = allCards.filter((c) => Number(c.lastAttempts) >= STRUGGLING_THRESHOLD);
-    const stCount = strugglingCardsCache.length;
+    // Schwierige Karten: alle Kartensets zusammen, je Modus getrennt –
+    // zuletzt >= 2 Versuche in genau diesem Modus noetig
+    strugglingCardsCache = {
+      year: allCards.filter((c) => Number(c.lastAttemptsYear) >= STRUGGLING_THRESHOLD),
+      artist: allCards.filter((c) => Number(c.lastAttemptsArtist) >= STRUGGLING_THRESHOLD),
+    };
+    const yCount = strugglingCardsCache.year.length;
+    const aCount = strugglingCardsCache.artist.length;
     el.strugglingCount.textContent =
-      stCount === 0 ? "" : stCount + (stCount === 1 ? " Karte" : " Karten") + " aus allen Kartensets – zuletzt mind. 2 Versuche gebraucht";
-    el.strugglingYearBtn.disabled = stCount === 0;
-    el.strugglingArtistBtn.disabled = stCount === 0;
-    el.strugglingEmptyHint.classList.toggle("hidden", stCount > 0);
+      yCount + aCount === 0 ? "" :
+      "Jahr: " + yCount + (yCount === 1 ? " Karte" : " Karten") +
+      " · Interpret: " + aCount + (aCount === 1 ? " Karte" : " Karten") +
+      " (aus allen Kartensets, zuletzt mind. 2 Versuche gebraucht)";
+    el.strugglingYearBtn.disabled = yCount === 0;
+    el.strugglingArtistBtn.disabled = aCount === 0;
+    el.strugglingEmptyHint.classList.toggle("hidden", yCount + aCount > 0);
 
     el.cardSetGrid.innerHTML = "";
     cardSets.forEach((set) => {
@@ -522,7 +536,7 @@
         const blob = await compressImage(file);
         newCards.push({
           id: uid(), cardSetId: set.id, imageBlob: blob, addedAt: Date.now(),
-          lastAttempts: 0, lastPlayedAt: null,
+          lastAttemptsYear: 0, lastAttemptsArtist: 0, lastPlayedAt: null,
         });
       } catch (e) {
         failed++;
@@ -575,7 +589,7 @@
   let firstTryCorrectCount = 0; // Karten, die gleich beim 1. Versuch richtig waren
 
   function poolForContext() {
-    return currentPlayContext === "struggling" ? strugglingCardsCache : currentSetCards;
+    return currentPlayContext === "struggling" ? strugglingCardsCache[currentMode] : currentSetCards;
   }
 
   function startPlay(mode, context) {
@@ -655,9 +669,9 @@
 
     if (wasCorrect) {
       playLearned++;
-      // Merken, wie viele Versuche diese Karte diesmal gebraucht hat
+      // Merken, wie viele Versuche diese Karte diesmal in diesem Modus gebraucht hat
       // (ueberschreibt den alten Wert -> spiegelt immer "in letzter Zeit")
-      currentPlayCard.lastAttempts = attemptsById[cardId];
+      currentPlayCard[attemptsField(currentMode)] = attemptsById[cardId];
       currentPlayCard.lastPlayedAt = Date.now();
       Store.updateCard(currentPlayCard).catch(() => {});
     } else {
@@ -690,7 +704,8 @@
         const dataUrl = await blobToDataUrl(c.imageBlob);
         cardsWithData.push({
           id: c.id, cardSetId: c.cardSetId, addedAt: c.addedAt,
-          lastAttempts: c.lastAttempts || 0, lastPlayedAt: c.lastPlayedAt || null,
+          lastAttemptsYear: c.lastAttemptsYear || 0, lastAttemptsArtist: c.lastAttemptsArtist || 0,
+          lastPlayedAt: c.lastPlayedAt || null,
           imageDataUrl: dataUrl,
         });
       }
@@ -758,7 +773,8 @@
         const blob = dataUrlToBlob(c.imageDataUrl);
         newCards.push({
           id: c.id, cardSetId: c.cardSetId, addedAt: c.addedAt || Date.now(), imageBlob: blob,
-          lastAttempts: c.lastAttempts || 0, lastPlayedAt: c.lastPlayedAt || null,
+          lastAttemptsYear: c.lastAttemptsYear || 0, lastAttemptsArtist: c.lastAttemptsArtist || 0,
+          lastPlayedAt: c.lastPlayedAt || null,
         });
         addedCards++;
       }

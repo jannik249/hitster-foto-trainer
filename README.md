@@ -12,7 +12,9 @@ Die App kennt keine Antworten – du deckst die Karte auf und bewertest dich sel
 - Falsch (✗) → die Karte kommt 3–7 Karten später in derselben Runde nochmal
 - **Nach jeder Runde:** Prozent der Karten, die beim ersten Versuch richtig waren
 - **Schwierige Karten** (3. Modus, set-übergreifend): fragt automatisch alle Karten aus *allen*
-  Kartensets ab, für die du zuletzt 2 oder mehr Versuche gebraucht hast
+  Kartensets ab, für die du zuletzt 2 oder mehr Versuche gebraucht hast – getrennt je Modus:
+  Wer bei „Interpret erraten“ schwierig war, taucht nur dort in den schwierigen Karten auf,
+  nicht bei „Jahr erraten“ (und umgekehrt)
   (der Wert wird bei jedem Durchgang der Karte aktualisiert – eine Karte, die du dann gleich
   beim ersten Versuch richtig hast, fliegt wieder raus)
 - Sichern / Wiederherstellen als JSON-Datei (inkl. Fotos und Versuchs-Historie)
